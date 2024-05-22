@@ -13,7 +13,7 @@ router.get("/",async(req,res) => {
     }
 });
 
-router.post("/",async(req,res)=> {
+router.post("/create",async(req,res)=> {
     const todo = new Todo(
         {
             title: req.body.title,
@@ -28,9 +28,11 @@ router.post("/",async(req,res)=> {
         }
 });
 
-router.get("/:id", getTodo, async(req,res) => {
+
+router.get('/:id', getTodo, (req, res) => {
     res.json(res.todo);
-});
+  });
+  
 
 router.put("/:id", getTodo, async(req,res) => {
     if(req.body.title != null){
@@ -50,33 +52,27 @@ router.put("/:id", getTodo, async(req,res) => {
     }
 });
 
-router.delete("/:id", getTodo, async(req,res) => {
-    try{
-        await res.todo.remove();
-        res.json({message: "Todo deleted"});
+router.delete('/:id', getTodo, async (req, res) => {
+    try {
+      await res.todo.deleteOne();
+      res.json({ message: 'Todo deleted' });
+    } catch (err) {
+      res.status(500).json({ message: err.message });
     }
-    catch(error){
-        res.status(500).json({message: error.message});
-    }
-    }
-);
+  });
 
-async function getTodo(req,res,next) {
+async function getTodo(req, res, next) {
     let todo;
     try {
-        todo = await Todo.findById(req.params.id);
-        if(todo = null){
-            return res.status(404).json({
-                message: 'Todo not found'
-            });
-        } 
-    } catch (error) {
-        return res.status(500).json({
-            error: error
-        });    
+      todo = await Todo.findById(req.params.id);
+      if (todo == null) {
+        return res.status(404).json({ message: 'Cannot find todo' });
+      }
+    } catch (err) {
+      return res.status(500).json({ message: err.message });
     }
     res.todo = todo;
     next();
-}
-
+  }
+  
 module.exports = router;

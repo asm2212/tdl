@@ -14,7 +14,9 @@ mongoose.connect("mongodb://127.0.0.1:27017/tdl", {
 
 app.use(express.json());
 
-app.use("/todos",todoRoutes)
+app.use("/todos",todoRoutes);
+app.use("/todos/create",todoRoutes);
+// app.use("todos/:id",todoRoutes);
 
 app.listen(port, () => {
   console.log(`Server running at ${port}`);
