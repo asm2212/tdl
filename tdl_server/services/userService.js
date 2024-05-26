@@ -9,7 +9,6 @@ class UserService {
             
             const hashedPassword = await bcrypt.hash(password, salt);
 
-            
             const createUser = new UserModel({ email, password: hashedPassword });
             return await createUser.save();
         } catch (error) {
