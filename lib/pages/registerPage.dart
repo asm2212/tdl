@@ -1,0 +1,1 @@
+class register extends
