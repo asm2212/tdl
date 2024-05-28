@@ -14,34 +14,41 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-
-  TextEditingController emailController = TextEditingController();
-  TextEditingController passwordController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   bool _isNotValidate = false;
+  bool _isPasswordVisible = false;
 
-  void registerUser() async{
-    if(emailController.text.isNotEmpty && passwordController.text.isNotEmpty){
+  void registerUser() async {
+    setState(() {
+      _isNotValidate = false;
+    });
 
-      var regBody = {
-        "email":emailController.text,
-        "password":passwordController.text
+    if (emailController.text.isNotEmpty && passwordController.text.isNotEmpty) {
+      final regBody = {
+        "email": emailController.text,
+        "password": passwordController.text
       };
 
-      var response = await http.post(Uri.parse(register),
-      headers: {"Content-Type":"application/json"},
-      body: jsonEncode(regBody)
+      final response = await http.post(
+        Uri.parse(register),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(regBody),
       );
 
-      var jsonResponse = jsonDecode(response.body);
+      final jsonResponse = jsonDecode(response.body);
 
-      print(jsonResponse['status']);
-
-      if(jsonResponse['status']){
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginPage()));
-      }else{
-        print("SomeThing Went Wrong");
+      if (jsonResponse['status']) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Something went wrong, please try again.')),
+        );
       }
-    }else{
+    } else {
       setState(() {
         _isNotValidate = true;
       });
@@ -57,11 +64,11 @@ class _RegisterPageState extends State<RegisterPage> {
           height: MediaQuery.of(context).size.height,
           decoration: BoxDecoration(
             gradient: LinearGradient(
-                colors: [const Color(0XFFF95A3B),const Color(0XFFF96713)],
-                begin: FractionalOffset.topLeft,
-                end: FractionalOffset.bottomCenter,
-                stops: [0.0,0.8],
-                tileMode: TileMode.mirror
+              colors: [Color(0XFFF95A3B), Color(0XFFF96713)],
+              begin: FractionalOffset.topLeft,
+              end: FractionalOffset.bottomCenter,
+              stops: [0.0, 0.8],
+              tileMode: TileMode.mirror,
             ),
           ),
           child: Center(
@@ -72,59 +79,15 @@ class _RegisterPageState extends State<RegisterPage> {
                   CommonLogo(),
                   HeightBox(10),
                   "CREATE YOUR ACCOUNT".text.size(22).yellow100.make(),
-                  TextField(
+                  buildTextField(
                     controller: emailController,
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                        filled: true,
-                        fillColor: Colors.white,
-                        errorStyle: TextStyle(color: Colors.white),
-                        errorText: _isNotValidate ? "Enter Proper Info" : null,
-                        hintText: "Email",
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)))),
-                  ).p4().px24(),
-                  TextField(
-                    controller: passwordController,
-                    keyboardType: TextInputType.text,
-                    decoration: InputDecoration(
-                        suffixIcon: IconButton(icon: Icon(Icons.copy),onPressed: (){
-                          final data = ClipboardData(text: passwordController.text);
-                          Clipboard.setData(data);
-                        },),
-                        prefixIcon: IconButton(icon: Icon(Icons.password),onPressed: (){
-                          String passGen =  generatePassword();
-                          passwordController.text = passGen;
-                          setState(() {
-
-                          });
-                        },),
-                        filled: true,
-                        fillColor: Colors.white,
-                        errorStyle: TextStyle(color: Colors.white),
-                        errorText: _isNotValidate ? "Enter Proper Info" : null,
-                        hintText: "Password",
-                        border: OutlineInputBorder(
-                            borderRadius: BorderRadius.all(Radius.circular(10.0)))),
-                  ).p4().px24(),
-                  HStack([
-                    GestureDetector(
-                      onTap: ()=>{
-                        registerUser()
-                      },
-                        child: VxBox(child: "Register".text.white.makeCentered().p16()).green600.roundedLg.make().px16().py16(),
-                    ),
-                  ]),
-                  GestureDetector(
-                    onTap: (){
-                      print("Sign In");
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginPage()));
-                    },
-                    child: HStack([
-                      "Already Registered?".text.make(),
-                      " Sign In".text.white.make()
-                    ]).centered(),
-                  )
+                    hintText: "Email",
+                  ),
+                  buildPasswordField(),
+                  HeightBox(10),
+                  buildRegisterButton(),
+                  HeightBox(10),
+                  buildSignInLink(),
                 ],
               ),
             ),
@@ -133,27 +96,109 @@ class _RegisterPageState extends State<RegisterPage> {
       ),
     );
   }
+
+  Widget buildTextField({
+    required TextEditingController controller,
+    required String hintText,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+      child: TextField(
+        controller: controller,
+        keyboardType: TextInputType.emailAddress,
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: Colors.white,
+          hintText: hintText,
+          errorText: _isNotValidate ? "Enter proper info" : null,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildPasswordField() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+      child: TextField(
+        controller: passwordController,
+        obscureText: !_isPasswordVisible,
+        decoration: InputDecoration(
+          filled: true,
+          fillColor: Colors.white,
+          hintText: "Password",
+          errorText: _isNotValidate ? "Enter proper info" : null,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(10.0)),
+          ),
+          prefixIcon: IconButton(
+            icon: Icon(Icons.password),
+            onPressed: () {
+              String passGen = generatePassword();
+              passwordController.text = passGen;
+              setState(() {});
+            },
+          ),
+          suffixIcon: IconButton(
+            icon: Icon(_isPasswordVisible ? Icons.visibility : Icons.visibility_off),
+            onPressed: () {
+              setState(() {
+                _isPasswordVisible = !_isPasswordVisible;
+              });
+            },
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildRegisterButton() {
+    return GestureDetector(
+      onTap: registerUser,
+      child: HStack([
+        VxBox(child: "Register".text.white.makeCentered().p16())
+            .green600
+            .roundedLg
+            .make()
+            .px16()
+            .py16(),
+      ]),
+    );
+  }
+
+  Widget buildSignInLink() {
+    return GestureDetector(
+      onTap: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginPage()),
+        );
+      },
+      child: HStack([
+        "Already Registered?".text.make(),
+        " Sign In".text.white.make(),
+      ]).centered(),
+    );
+  }
 }
 
 String generatePassword() {
-  String upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  String lower = 'abcdefghijklmnopqrstuvwxyz';
-  String numbers = '1234567890';
-  String symbols = '!@#\$%^&*()<>,./';
+  const String upper = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const String lower = 'abcdefghijklmnopqrstuvwxyz';
+  const String numbers = '1234567890';
+  const String symbols = '!@#\$%^&*()<>,./';
 
-  String password = '';
-
-  int passLength = 20;
-
+  const int passLength = 20;
   String seed = upper + lower + numbers + symbols;
+  
 
-  List<String> list = seed.split('').toList();
-
+  List<String> list = seed.split('');
   Random rand = Random();
 
-  for (int i = 0; i < passLength; i++) {
-    int index = rand.nextInt(list.length);
-    password += list[index];
-  }
-  return password;
+  return List.generate(passLength, (index) {
+    int randomIndex = rand.nextInt(list.length);
+    return list[randomIndex];
+  }).join();
 }
