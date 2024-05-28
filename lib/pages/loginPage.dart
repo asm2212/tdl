@@ -1,19 +1,20 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_todo_app/dashboard.dart';
-import 'package:flutter_todo_app/registration.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tdl/config.dart';
+import 'package:tdl/dashboard.dart';
+import 'package:tdl/logo.dart';
+import 'package:tdl/pages/registerPage.dart';
 import 'package:velocity_x/velocity_x.dart';
-import 'applogo.dart';
 import 'package:http/http.dart' as http;
-import 'config.dart';
 
-class SignInPage extends StatefulWidget {
+
+class LoginPage extends StatefulWidget {
   @override
-  _SignInPageState createState() => _SignInPageState();
+  _LoginPageState createState() => _LoginPageState();
 }
 
-class _SignInPageState extends State<SignInPage> {
+class _LoginPageState extends State<LoginPage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   bool _isNotValidate = false;
@@ -117,7 +118,7 @@ class _SignInPageState extends State<SignInPage> {
         ),
         bottomNavigationBar: GestureDetector(
           onTap: (){
-            Navigator.push(context, MaterialPageRoute(builder: (context)=>Registration()));
+            Navigator.push(context, MaterialPageRoute(builder: (context)=>RegisterPage()));
           },
           child: Container(
               height: 25,

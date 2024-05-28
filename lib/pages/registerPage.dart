@@ -2,18 +2,18 @@ import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:tdl/config.dart';
+import 'package:tdl/logo.dart';
 import 'package:velocity_x/velocity_x.dart';
-import 'applogo.dart';
 import 'loginPage.dart';
 import 'package:http/http.dart' as http;
-import 'config.dart';
 
-class Registration extends StatefulWidget {
+class RegisterPage extends StatefulWidget {
   @override
-  _RegistrationState createState() => _RegistrationState();
+  _RegisterPageState createState() => _RegisterPageState();
 }
 
-class _RegistrationState extends State<Registration> {
+class _RegisterPageState extends State<RegisterPage> {
 
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -27,7 +27,7 @@ class _RegistrationState extends State<Registration> {
         "password":passwordController.text
       };
 
-      var response = await http.post(Uri.parse(registration),
+      var response = await http.post(Uri.parse(register),
       headers: {"Content-Type":"application/json"},
       body: jsonEncode(regBody)
       );
@@ -37,7 +37,7 @@ class _RegistrationState extends State<Registration> {
       print(jsonResponse['status']);
 
       if(jsonResponse['status']){
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>SignInPage()));
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginPage()));
       }else{
         print("SomeThing Went Wrong");
       }
@@ -118,7 +118,7 @@ class _RegistrationState extends State<Registration> {
                   GestureDetector(
                     onTap: (){
                       print("Sign In");
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>SignInPage()));
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>LoginPage()));
                     },
                     child: HStack([
                       "Already Registered?".text.make(),
