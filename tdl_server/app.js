@@ -5,6 +5,6 @@ const userRouter = require("./routes/userRoute.js");
 const app = express();
 
 app.use(bodyParser.json());
-app.use("/",userRouter);
+app.use("/user",userRouter);
 
 module.exports = app;
