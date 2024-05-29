@@ -8,3 +8,14 @@ exports.createTdl = async(req,res,next)=> {
         return res.status(500).json({ message: err.message });
     }
 }
+exports.getTdl = async(req,res,next)=> {
+    try {
+        const {userId} = req.body;
+        const tdl = await TdlService.getTdl(userId);
+        res.json(tdl);
+
+    } catch (err) {
+        return res.status(500).json({ message: err.message });
+    }
+    
+}

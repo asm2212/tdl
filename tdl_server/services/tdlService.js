@@ -9,6 +9,14 @@ class TdlService{
             throw error;
         }
     }
+    static async getUserTdl(userId){
+        try {
+            const userTdl = await tdlModel.find({userId});
+            return userTdl;
+        } catch (error) {
+            throw error;
+        }
+    }
 }
 
 module.exports = TdlService;
