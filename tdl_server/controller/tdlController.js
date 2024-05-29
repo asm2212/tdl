@@ -19,12 +19,14 @@ exports.getTdl = async (req, res, next) => {
         return res.status(500).json({ message: err.message });
     }
 };
-
 exports.deleteTdl = async (req, res, next) => {
     try {
-        const { id } = req.body; 
+        const { id } = req.body;
         const tdl = await TdlService.deleteTdl(id);
-        res.json(tdl);
+        if (!tdl) {
+            return res.status(404).json({ message: 'To-Do list item not found' });
+        }
+        res.json({ message: 'To-Do list item deleted successfully', tdl });
     } catch (err) {
         return res.status(500).json({ message: err.message });
     }
