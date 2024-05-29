@@ -24,5 +24,5 @@ const tdlSchema = new Schema (
     }
 );
 
-const tdlModel = db.model("tdl",tdlSchema);
+const tdlModel = con.model("tdl",tdlSchema);
 module.exports = tdlModel;
