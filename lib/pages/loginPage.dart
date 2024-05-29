@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:tdl/config.dart';
+import 'package:tdl/config.dart'; // Ensure this file contains the correct URL for your server
 import 'package:tdl/dashboard.dart';
 import 'package:tdl/logo.dart';
 import 'package:tdl/pages/registerPage.dart';
@@ -40,24 +40,36 @@ class _LoginPageState extends State<LoginPage> {
         "password": passwordController.text
       };
 
-      final response = await http.post(
-        Uri.parse(login),
-        headers: {"Content-Type": "application/json"},
-        body: jsonEncode(reqBody),
-      );
-
-      final jsonResponse = jsonDecode(response.body);
-
-      if (jsonResponse['status']) {
-        final myToken = jsonResponse['token'];
-        prefs.setString('token', myToken);
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => Dashboard(token: myToken)),
+      try {
+        final response = await http.post(
+          Uri.parse(login), // Ensure the `login` variable contains the correct URL
+          headers: {"Content-Type": "application/json"},
+          body: jsonEncode(reqBody),
         );
-      } else {
+
+        if (response.statusCode == 200) {
+          final jsonResponse = jsonDecode(response.body);
+
+          if (jsonResponse['status']) {
+            final myToken = jsonResponse['token'];
+            prefs.setString('token', myToken);
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => Dashboard(token: myToken)),
+            );
+          } else {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(content: Text('Invalid email or password')),
+            );
+          }
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Server error: ${response.statusCode}')),
+          );
+        }
+      } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Invalid email or password')),
+          SnackBar(content: Text('Network error: $e')),
         );
       }
     } else {
@@ -159,7 +171,7 @@ class _LoginPageState extends State<LoginPage> {
       },
       child: Container(
         height: 25,
-        color: Colors.lightBlue,
+        color: Color.fromARGB(255, 5, 234, 74),
         child: Center(
           child: "Create a new Account..! Sign Up".text.white.makeCentered(),
         ),
